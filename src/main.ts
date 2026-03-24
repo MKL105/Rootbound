@@ -1,11 +1,13 @@
-// src/main.ts
+// ── main.ts ────────────────────────────────────────────────────────────────
+// This is the main entrypoint for the scripts. This file is responsible for 
+// initially rendering the DOM as well as starting the main loop.
+// ───────────────────────────────────────────────────────────────────────────
 
-import './style.css';
-import type { NavState } from './types';
-import { loadGame, saveGame, defaultState, addLog } from './game/state';
-import { tick } from './game/engine';
-import { renderScreen } from './ui/render';
-import { handleCommand } from './ui/commands';
+import { loadGame, saveGame, addLog } from "./game/state";
+import { type NavState } from "./data/types";
+import { renderScreen } from "./ui/render";
+import { handleCommand } from "./game/commands";
+import { tick } from "./game/engine";
 
 // ── State ──────────────────────────────────────────────────────────────────
 const state = loadGame();
@@ -18,7 +20,7 @@ let lastSave       = Date.now() / 1000;
 let cmdHistory: string[] = [];
 let cmdHistoryIdx  = -1;
 
-// ── DOM ────────────────────────────────────────────────────────────────────
+// ── DOM setup ──────────────────────────────────────────────────────────────
 const appEl = document.getElementById('app')!;
 appEl.innerHTML = `
   <div class="terminal">
