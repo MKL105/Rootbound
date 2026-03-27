@@ -1,5 +1,5 @@
 import type { GameState } from "../../data/types";
-import { COLORS, fmtTime, headerBar } from "../render";
+import { COLORS, escHtml, fmtTime, headerBar } from "../render";
 
 // ── EVENT LOG ──────────────────────────────────────────────────────────────
 export function renderLog(state: GameState, filterCat?: string, n = 30): string {
@@ -36,6 +36,6 @@ export function renderLog(state: GameState, filterCat?: string, n = 30): string 
     }
 
     lines.push('');
-    lines.push(`  ${COLORS.dim('log [drops|rare|level|combat]  ·  log --n <count>')}`);
+    lines.push(`  ${COLORS.dim(escHtml('log [drops|rare|level|combat]  ·  log --n <count>'))}`);
     return lines.join('\n');
 }

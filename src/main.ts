@@ -11,14 +11,14 @@ import { tick } from "./game/engine";
 
 // ── State ──────────────────────────────────────────────────────────────────
 const state = loadGame();
-const nav: NavState = { current:'home', history:[], skillDetail:null, helpTopic:null, invFilter:null, actionDetail:null, lootReveal:null, logFilter:null, logN:30 };
+const nav: NavState = { current: 'home', history: [], skillDetail: null, helpTopic: null, invFilter: null, actionDetail: null, lootReveal: null, logFilter: null, logN: 30 };
 
-let lastMessage    = '';
-let lastMessageOk  = true;
-let sessionStart   = Date.now() / 1000;
-let lastSave       = Date.now() / 1000;
+let lastMessage = '';
+let lastMessageOk = true;
+let sessionStart = Date.now() / 1000;
+let lastSave = Date.now() / 1000;
 let cmdHistory: string[] = [];
-let cmdHistoryIdx  = -1;
+let cmdHistoryIdx = -1;
 
 // ── DOM setup ──────────────────────────────────────────────────────────────
 const appEl = document.getElementById('app')!;
@@ -35,7 +35,7 @@ appEl.innerHTML = `
         autocorrect="off"
         autocapitalize="off"
         spellcheck="false"
-        placeholder="type a command…"
+        placeholder="type a command… (use 'help' to get an overview about all commands)"
       />
     </div>
   </div>
@@ -43,7 +43,7 @@ appEl.innerHTML = `
 
 const screenEl = document.getElementById('screen')!;
 const msgbarEl = document.getElementById('msgbar')!;
-const inputEl  = document.getElementById('cmd-input') as HTMLInputElement;
+const inputEl = document.getElementById('cmd-input') as HTMLInputElement;
 
 // Auto-focus input on click anywhere in the terminal
 document.querySelector('.terminal')!.addEventListener('click', () => inputEl.focus());
@@ -58,7 +58,7 @@ function redraw() {
   if (signal) {
     const flashClass = signal.dataset.flash ?? '';
     if (flashClass) {
-      const FLASH_CLASSES = ['rare-screen-flash','legendary-screen-flash','mythic-screen-flash'];
+      const FLASH_CLASSES = ['rare-screen-flash', 'legendary-screen-flash', 'mythic-screen-flash'];
       screenEl.classList.remove(...FLASH_CLASSES);
       void screenEl.offsetWidth; // force reflow so animation restarts
       screenEl.classList.add(flashClass);
@@ -68,7 +68,7 @@ function redraw() {
 
 function showMessage(msg: string, isOk: boolean) {
   msgbarEl.textContent = msg;
-  msgbarEl.className   = `message-bar ${msg ? (isOk ? 'ok' : 'err') : 'empty'}`;
+  msgbarEl.className = `message-bar ${msg ? (isOk ? 'ok' : 'err') : 'empty'}`;
 }
 
 // Level-up flash effect on the terminal
@@ -93,7 +93,7 @@ inputEl.addEventListener('keydown', (e) => {
     if (cmdHistory.length > 50) cmdHistory.pop();
 
     const result = handleCommand(raw, state, nav);
-    lastMessage   = result.message;
+    lastMessage = result.message;
     lastMessageOk = result.ok;
 
     showMessage(lastMessage, lastMessageOk);

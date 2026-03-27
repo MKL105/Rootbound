@@ -82,6 +82,7 @@ export interface GameState {
   log:             LogEntry[];
   ownedUtilities:  string[];
   queueLimit:      number;
+  quantityLimit:   number;
 }
 
 export interface NavState {

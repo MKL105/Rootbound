@@ -1,28 +1,30 @@
 import type { GameState } from "../../data/types";
-import { COLORS, headerBar, paddingRight, thinRule } from "../render";
+import { COLORS, escHtml, headerBar, paddingRight, thinRule } from "../render";
 
 // ── HELP ───────────────────────────────────────────────────────────────────
 const ALL_COMMANDS = [
-    ['go <dest>', 'Navigate to a screen (help go for full list)'],
+    [escHtml('go <dest>'), 'Navigate to a screen (help go for full list)'],
     ['back', 'Return to previous screen'],
     ['home', 'Jump to main HUD from anywhere'],
-    ['do <skill> <action> [qty]', 'Start action immediately (--keep to preserve queue)'],
-    ['queue <skill> <action> [qty]', 'Add to queue. Starts immediately if idle'],
+    [escHtml('do <skill> <action> [qty]'), 'Start action immediately (--keep to preserve queue)'],
+    [escHtml('queue <skill> <action> [qty]'), 'Add to queue. Starts immediately if idle'],
     ['stop [--all]', 'Stop current action (--all also clears queue)'],
     ['clear [--all]', 'Clear queue (--all also stops current)'],
-    ['q [remove <n>|move <a> <b>]', 'View / manage the queue'],
+    [escHtml('q [remove <n>|move <a> <b>]'), 'View / manage the queue'],
     ['inv [skill|rare]', 'Inventory, optionally filtered'],
-    ['inspect <item>', 'Detailed item info'],
+    [escHtml('inspect <item>'), 'Detailed item info'],
     ['shop [boosts|lootboxes|utility]', 'Open The Verdant Exchange'],
-    ['buy <item> [qty]', 'Purchase from shop'],
-    ['sell <item> [qty|--all]', 'Sell items for gold (no confirmation)'],
+    [escHtml('buy <item> [qty]'), 'Purchase from shop'],
+    [escHtml('sell <item> [qty|--all]'), 'Sell items for gold (no confirmation)'],
     ['skills', 'All 15 skills with level overview'],
-    ['skill <name>', 'Full detail: sub-actions, requirements, XP'],
+    [escHtml('skill <name>'), 'Full detail: sub-actions, requirements, XP'],
     ['stats', 'Character overview, completion tracker, buffs'],
     ['log [filter]', 'Event log (drops | rare | level | combat)'],
     ['season', 'Current season, bonuses, exclusive content'],
     ['completion [view]', 'Detailed tracker: actions, drops, combat, milestones, sets'],
-    ['debug <sub>', 'Dev tools: season, addxp, addgold, additem'],
+    [escHtml('debug <sub>'), 'Dev tools: season, addxp, addgold, additem'],
+    ['settings', 'Opens the settings screen'],
+    [escHtml('set <option>'), 'Executes settings options'],
     ['help [command]', 'This screen, or help for a specific command'],
 ];
 
@@ -35,13 +37,13 @@ interface HelpPage {
 
 const HELP_PAGES: Record<string, HelpPage> = {
     go: {
-        usage: 'go <screen>',
+        usage: escHtml('go <screen>'),
         desc: 'Navigate to a different screen.',
         args: [['screen', 'home · skills · inventory · shop · log · season · stats']],
         examples: ['go home', 'go shop', 'go skills'],
     },
     do: {
-        usage: 'do <skill> <action> [qty] [--keep]',
+        usage: escHtml('do <skill> <action> [qty] [--keep]'),
         desc: 'Start an action immediately. Clears the queue unless --keep is used.',
         args: [
             ['skill', 'skill name e.g. foraging, brewing, combat'],
@@ -52,7 +54,7 @@ const HELP_PAGES: Record<string, HelpPage> = {
         examples: ['do foraging gather_wildberries', 'do foraging gather_wildberries 20', 'do brewing brew_chamomile_tea 10', 'do foraging gather_moonbloom --keep'],
     },
     queue: {
-        usage: 'queue <skill> <action> [qty]',
+        usage: escHtml('queue <skill> <action> [qty]'),
         desc: 'Add an action to the end of the queue. Starts immediately if the queue is empty.',
         args: [
             ['skill', 'skill name'],
@@ -74,22 +76,22 @@ const HELP_PAGES: Record<string, HelpPage> = {
         examples: ['clear', 'clear --all'],
     },
     q: {
-        usage: 'q [remove <n> | move <a> <b>]',
+        usage: escHtml('q [remove <n> | move <a> <b>]'),
         desc: 'View and manage the action queue.',
         args: [
             ['(none)', 'show the queue'],
-            ['remove <n>', 'remove the entry at slot n'],
-            ['move <a> <b>', 'swap slots a and b'],
+            [escHtml('remove <n>'), 'remove the entry at slot n'],
+            [escHtml('move <a> <b>'), 'swap slots a and b'],
         ],
         examples: ['q', 'q remove 3', 'q move 1 4'],
     },
     view: {
-        usage: 'view <target> [args]',
+        usage: escHtml('view <target> [args]'),
         desc: 'Inspect an action, item, or skill in detail.',
         args: [
-            ['action <skill> <action>', 'full info on a sub-action: duration, XP, output, requirements'],
-            ['item <name>', 'item detail: sell price, rarity, which actions produce it'],
-            ['skill <name>', 'shortcut for the skill detail screen'],
+            [escHtml('action <skill> <action>'), 'full info on a sub-action: duration, XP, output, requirements'],
+            [escHtml('item <name>'), 'item detail: sell price, rarity, which actions produce it'],
+            [escHtml('skill <name>'), 'shortcut for the skill detail screen'],
         ],
         examples: ['view action foraging gather_moonbloom', 'view action brewing brew_clarity_potion', 'view item moonbloom_petals', 'view skill combat'],
     },
@@ -98,7 +100,7 @@ const HELP_PAGES: Record<string, HelpPage> = {
         desc: 'Show your inventory, optionally filtered and sorted.',
         args: [
             ['(none)', 'all items, sorted alphabetically'],
-            ['<skill>', 'only items from that skill category'],
+            [escHtml('<skill>'), 'only items from that skill category'],
             ['rare', 'only uncommon rarity and above'],
             ['--sort price', 'sort by sell value descending'],
             ['--sort quantity', 'sort by quantity descending'],
@@ -106,13 +108,13 @@ const HELP_PAGES: Record<string, HelpPage> = {
         examples: ['inv', 'inv foraging', 'inv rare', 'inv --sort price', 'inv brewing --sort quantity'],
     },
     inspect: {
-        usage: 'inspect <item>',
+        usage: escHtml('inspect <item>'),
         desc: 'Show full detail on an item: sell price, rarity, which actions produce it.',
         args: [['item', 'item name (spaces or underscores both work)']],
         examples: ['inspect moonbloom_petals', 'inspect ancient bark'],
     },
     sell: {
-        usage: 'sell <item> [qty] [--all]',
+        usage: escHtml('sell <item> [qty] [--all]'),
         desc: 'Sell items from your inventory for gold. No confirmation prompt — sells immediately.',
         args: [
             ['item', 'item name (spaces or underscores both work)'],
@@ -122,7 +124,7 @@ const HELP_PAGES: Record<string, HelpPage> = {
         examples: ['sell wildberries 50', 'sell moonbloom_petals --all', 'sell birch_logs 200'],
     },
     buy: {
-        usage: 'buy <item> [qty]',
+        usage: escHtml('buy <item> [qty]'),
         desc: "Purchase from The Verdant Exchange. Type 'shop' to browse.",
         args: [
             ['item', 'shop item name e.g. wanderers_focus, grove_chest, expanded_satchel'],
@@ -131,13 +133,13 @@ const HELP_PAGES: Record<string, HelpPage> = {
         examples: ['buy wanderers_focus', 'buy grove_chest 3', 'buy field_journal'],
     },
     skill: {
-        usage: 'skill <name>',
+        usage: escHtml('skill <name>'),
         desc: 'Full detail page for a skill: level, XP progress, all sub-actions with requirements.',
         args: [['name', 'skill name e.g. foraging, combat, ritualism']],
         examples: ['skill foraging', 'skill combat', 'skill brew'],
     },
     log: {
-        usage: 'log [filter] [--n <count>]',
+        usage: escHtml('log [filter] [--n <count>]'),
         desc: 'Show the event log.',
         args: [
             ['(none)', 'last 30 events'],
@@ -145,7 +147,7 @@ const HELP_PAGES: Record<string, HelpPage> = {
             ['rare', 'rare tier drops and above'],
             ['level', 'level-up events only'],
             ['combat', 'combat events only'],
-            ['--n <num>', 'show N events (max 200)'],
+            [escHtml('--n <num>'), 'show N events (max 200)'],
         ],
         examples: ['log', 'log rare', 'log level', 'log --n 100'],
     },
@@ -169,13 +171,13 @@ const HELP_PAGES: Record<string, HelpPage> = {
         examples: ['completion', 'completion actions', 'completion drops', 'completion combat', 'completion milestones', 'completion sets'],
     },
     debug: {
-        usage: 'debug <subcommand>',
+        usage: escHtml('debug <subcommand>'),
         desc: 'Development tools. Useful for testing seasonal content and late-game areas.',
         args: [
             ['season', 'advance to the next season immediately'],
-            ['addxp <skill> <n>', 'add N XP to a skill'],
-            ['addgold <n>', 'add N gold'],
-            ['additem <item> [n]', 'add N of an item to inventory'],
+            [escHtml('addxp <skill> <n>'), 'add N XP to a skill'],
+            [escHtml('addgold <n>'), 'add N gold'],
+            [escHtml('additem <item> [n]'), 'add N of an item to inventory'],
         ],
         examples: ['debug season', 'debug addxp foraging 5000', 'debug addgold 10000', 'debug additem moonbloom_petals 10'],
     },
@@ -184,6 +186,16 @@ const HELP_PAGES: Record<string, HelpPage> = {
         desc: 'Character overview: completion tracker, active buffs, companions, gold, playtime.',
         args: [],
         examples: ['stats'],
+    },
+    set: {
+        usage: escHtml('set <option>'),
+        desc: 'Executes the options listed on the settings page.',
+        args: [
+            ['reset', 'Resets all game data'],
+            ['export', 'Exports the data to a save file'],
+            ['import', 'Imports data from a save file']
+        ],
+        examples: ['set reset', 'set import', 'set export'],
     },
 };
 
@@ -217,7 +229,7 @@ export function renderHelp(state: GameState, topic?: string | null): string {
         }
 
         lines.push('');
-        lines.push(`  ${COLORS.dim("back  — return  ·  help  — full command list")}`);
+        lines.push(`  ${COLORS.dim("back — return  ·  help — full command list")}`);
     } else {
         lines.push(headerBar(state, 'HELP'));
         lines.push('');
@@ -233,7 +245,7 @@ export function renderHelp(state: GameState, topic?: string | null): string {
             lines.push(`  ${indicator} ${paddingRight(COLORS.gold(cmd), 34)}  ${COLORS.dim(desc)}`); //TODO: magical numbers
         }
         lines.push('');
-        lines.push(`  ${COLORS.dim('help <command>  — detailed help  ·  ? = has detail page')}`);
+        lines.push(`  ${COLORS.dim(escHtml('help <command> gives detailed help information ·  ? = has detail page'))}`);
     }
 
     return lines.join('\n');

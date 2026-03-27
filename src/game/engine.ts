@@ -372,7 +372,13 @@ function completeAction(state: GameState, active: ActiveAction): void {
 
   // Level-up log
   if (newLvl > oldLvl) {
-    addLog(state, `⬆ LEVEL UP! ${SKILL_LABELS[skill] ?? skill} reached level ${newLvl}`, 'level_up');
+    if (newLvl % 5 === 0) {
+      state.quantityLimit++;
+      addLog(state, `⬆ LEVEL UP! ${SKILL_LABELS[skill] ?? skill} reached level ${newLvl}. Increased quantity limit by 1.`, 'level_up');
+    }
+    else {
+      addLog(state, `⬆ LEVEL UP! ${SKILL_LABELS[skill] ?? skill} reached level ${newLvl}`, 'level_up');
+    }
   }
 
   // General action log — throttle to avoid flooding

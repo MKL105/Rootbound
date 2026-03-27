@@ -1,5 +1,5 @@
 import type { GameState } from "../../data/types";
-import { COLORS, headerBar, paddingRight, progressBar, thinRule } from "../render";
+import { COLORS, escHtml, headerBar, paddingRight, progressBar, thinRule } from "../render";
 import { getSkillLevel, SKILL_LABELS, SKILL_NAMES } from "../../game/state";
 import { SKILLS } from "../../data/skills";
 import { SKILL_DROPS, TIER_LABELS } from "../../data/drops";
@@ -95,6 +95,6 @@ export function renderSkillDetail(state: GameState, skillName: string): string {
     }
 
     lines.push('');
-    lines.push(`  ${COLORS.dim(`do ${skillName} <action> [qty]`)}`);
+    lines.push(`  ${COLORS.dim(escHtml(`do ${skillName} <action> [qty]`))}`);
     return lines.join('\n');
 }

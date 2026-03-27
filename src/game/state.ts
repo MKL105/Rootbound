@@ -9,33 +9,90 @@ import type { GameState, LogCategory } from "../data/types";
 
 // ── Log ────────────────────────────────────────────────────────────────────
 export function addLog(state: GameState, text: string, category: LogCategory = 'general'): void {
-  state.log.unshift({ ts: Date.now()/1000, text, category });
-  if (state.log.length > 200) state.log = state.log.slice(0,200);
+  state.log.unshift({ ts: Date.now() / 1000, text, category });
+  if (state.log.length > 200) state.log = state.log.slice(0, 200);
 }
 
 // ── Default state ───────────────────────────────────────────────────────────
 export function defaultState(): GameState {
   return {
-    version:1, createdAt:Date.now()/1000, playedSeconds:0,
-    skills: Object.fromEntries(SKILL_NAMES.map(n=>[n,0])),
-    queue:[], active:null, inventory:{}, gold:0, buffs:[], companions:[],
-    seasonIndex:0, seasonStartedAt:Date.now()/1000,
-    completion:{actionMastery:[],itemCollection:[],rareDrops:[],combatKills:{},worldMilestones:[]},
-    log:[], ownedUtilities:[], queueLimit:10,
+    version: 1, createdAt: Date.now() / 1000, playedSeconds: 0,
+    skills: Object.fromEntries(SKILL_NAMES.map(n => [n, 0])),
+    queue: [], active: null, inventory: {}, gold: 0, buffs: [], companions: [],
+    seasonIndex: 0, seasonStartedAt: Date.now() / 1000,
+    completion: { actionMastery: [], itemCollection: [], rareDrops: [], combatKills: {}, worldMilestones: [] },
+    log: [], ownedUtilities: [], queueLimit: 10, quantityLimit: 20
   };
 }
 
 // ── Persistence ─────────────────────────────────────────────────────────────
-const SAVE_KEY = 'rootbound_v1';
+export const SAVE_KEY = 'rootbound_v1';
 export function saveGame(state: GameState): void {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch {}
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch { }
 }
 export function loadGame(): GameState {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (raw) return { ...defaultState(), ...JSON.parse(raw) };
-  } catch {}
+  } catch { }
   return defaultState();
+}
+
+export function resetGameData() {
+  localStorage.removeItem(SAVE_KEY);
+}
+
+//TODO: right now the return value is not used.
+export function importGameData(): Promise<GameState | null> {
+  return new Promise((resolve) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+
+    input.addEventListener('change', () => {
+      const file = input.files?.[0];
+      if (!file) { resolve(null); return; }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result as string) as GameState;
+
+          // Minimal sanity check — must look like a Rootbound save
+          if (typeof parsed !== 'object' || parsed === null || !parsed.skills || !parsed.version) {
+            resolve(null); return;
+          }
+
+          // Merge with defaults so missing fields (from older saves) are filled in
+          const merged = { ...defaultState(), ...parsed };
+          saveGame(merged);
+          resolve(merged);
+        } catch {
+          resolve(null);
+        }
+      };
+
+      reader.readAsText(file);
+    });
+
+    // If the picker is closed without selecting a file
+    input.addEventListener('cancel', () => resolve(null));
+
+    input.click();
+  });
+}
+
+export function exportGameData(state: GameState) {
+  const json = JSON.stringify(state, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `rootbound_save_${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+
+  URL.revokeObjectURL(url);
 }
 
 // ── Skills ─────────────────────────────────────────────────────────────────
@@ -77,10 +134,10 @@ export const SEASON_BONUSES: Record<Season, Record<string, number>> = {
 };
 
 export const SEASON_EXCLUSIVES: Record<Season, string[]> = {
-  spring: ['catch_crayfish (Fishing 20)', 'collect_dewdrops (Foraging 40)', 'cook_crayfish_feast (Cooking 32)'],
-  summer: ['collect_dewdrops (Foraging 40)', 'fast herb growth (Cultivation)'],
-  autumn: ['gather_autumn_berries (Foraging 25)', 'harvest_witchwood (Woodcutting 50)', 'gather_thornroot (Foraging 45)', 'brew_autumn_tonic (Brewing 45)'],
-  winter: ['ice_fish (Fishing 35)', 'read_the_aurora (Stargazing 35)', 'gather_moonbloom (Foraging 35)', 'chop_moonwood (Woodcutting 72)', 'prepare_winter_stew (Cooking 48)'],
+  spring: ['Catch crayfish (Fishing 20)', 'Collect dewdrops (Foraging 40)', 'Cook crayfish feast (Cooking 32)'],
+  summer: ['Collect dewdrops (Foraging 40)', 'Fast herb growth (Cultivation)'],
+  autumn: ['Gather autumn berries (Foraging 25)', 'Harvest witchwood (Woodcutting 50)', 'Gather thornroot (Foraging 45)', 'Brew autumn tonic (Brewing 45)'],
+  winter: ['Ice fish (Fishing 35)', 'Read the aurora (Stargazing 35)', 'Gather moonbloom (Foraging 35)', 'Chop moonwood (Woodcutting 72)', 'Prepare winter stew (Cooking 48)'],
 };
 
 // ── Season helpers ──────────────────────────────────────────────────────────

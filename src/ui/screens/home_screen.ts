@@ -1,5 +1,5 @@
 import type { GameState } from "../../data/types";
-import { COLORS, fmtDuration, fmtPlaytime, fmtTime, headerBar, paddingRight, progressBar, thinRule, visibleChars, WIDTH } from "../render";
+import { COLORS, escHtml, fmtDuration, fmtPlaytime, fmtTime, headerBar, paddingRight, progressBar, thinRule, visibleChars, WIDTH } from "../render";
 import { completionTitle, getCompletionPct, SKILL_LABELS } from "../../game/state";
 import { actionProgress } from "../../game/engine";
 
@@ -26,13 +26,13 @@ export function renderHome(state: GameState): string {
         const rem = Math.max(0, active.duration - (Date.now() / 1000 - active.startedAt)); //TODO: magic numbers
         leftLines.push(` ${progressBar(pct, 22)}  ${COLORS.dim(Math.round(pct * 100) + '%')}  ${COLORS.dim(fmtDuration(rem) + ' left')}`); //TODO: magic numbers
         if (active.qtyTotal !== 1) {
-            const tot = active.qtyTotal === 0 ? '∞' : String(active.qtyTotal);
+            const tot = String(active.qtyTotal);
             leftLines.push(` ${COLORS.dim(`Rep ${active.qtyDone + 1} of ${tot}`)}`);
         }
         leftLines.push(` ${COLORS.dim(`+${active.xpPer} XP per action`)}`);
     } else {
         leftLines.push(` ${COLORS.dim('Idle — no action running')}`);
-        leftLines.push(` ${COLORS.dim('Use: do <skill> <action> [qty]')}`);
+        leftLines.push(` ${COLORS.dim(escHtml('Use: do <skill> <action> [qty]'))}`);
         leftLines.push('');
         leftLines.push('');
     }
@@ -46,13 +46,13 @@ export function renderHome(state: GameState): string {
             const e = state.queue[i];
             const sk = SKILL_LABELS[e.skill] ?? e.skill;
             const ac = e.action.replace(/_/g, ' ').replace(/\b\w/g, x => x.toUpperCase());
-            const qty = e.qty === 0 ? '∞' : `×${e.qty}`;
+            const qty = `×${e.qty}`;
             rightLines.push(` ${COLORS.dim(`${i + 1}.`)} ${COLORS.forest(sk)} ${COLORS.dim('›')} ${COLORS.dim(ac)} ${COLORS.gold(qty)}`);
         }
         if (state.queue.length > 6) rightLines.push(` ${COLORS.dim(`  … and ${state.queue.length - 6} more`)}`); //TODO: magic numbers
     } else {
         rightLines.push(` ${COLORS.dim('Queue is empty')}`);
-        rightLines.push(` ${COLORS.dim('queue <skill> <action> [qty]')}`);
+        rightLines.push(` ${COLORS.dim(escHtml('queue <skill> <action> [qty]'))}`);
     }
 
     // Merge two columns

@@ -1,5 +1,5 @@
 import type { GameState } from "../../data/types";
-import { COLORS, headerBar, paddingRight, thinRule } from "../render";
+import { COLORS, escHtml, headerBar, paddingRight, thinRule } from "../render";
 import { SKILL_NAMES } from "../../game/state";
 import { getItemDef, getItemLabel, getSellPrice } from "../../data/items";
 
@@ -85,6 +85,6 @@ export function renderInventory(state: GameState, filter: string | null = null):
 
     lines.push('');
     lines.push(`  ${thinRule()}`);
-    lines.push(`  ${COLORS.dim('inv [skill]  ·  inv rare  ·  inv --sort price  ·  sell <item> [qty]')}`);
+    lines.push(`  ${COLORS.dim(escHtml('inv [skill]  ·  inv rare  ·  inv --sort price  ·  sell <item> [qty]'))}`);
     return lines.join('\n');
 }

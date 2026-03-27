@@ -1,5 +1,5 @@
 import type { GameState } from "../../data/types";
-import { COLORS, headerBar, paddingRight, progressBar, thinRule } from "../render";
+import { COLORS, escHtml, headerBar, paddingRight, progressBar, thinRule } from "../render";
 import { getSeason, getSkillLevel, SEASON_BONUSES, SKILL_LABELS, SKILL_NAMES } from "../../game/state";
 import { getActiveXpBonusSummary } from "../../game/engine";
 
@@ -47,6 +47,6 @@ export function renderSkills(state: GameState): string {
     }
 
     lines.push('');
-    lines.push(`  ${COLORS.dim("skill <name>  —  view full detail and sub-actions")}`);
+    lines.push(`  ${COLORS.dim(escHtml("skill <name>  —  view full detail and sub-actions"))}`);
     return lines.join('\n');
 }

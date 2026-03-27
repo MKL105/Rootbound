@@ -1,5 +1,5 @@
 import type { GameState } from "../../data/types";
-import { COLORS, headerBar, paddingRight, thinRule } from "../render";
+import { COLORS, escHtml, headerBar, paddingRight, thinRule } from "../render";
 import { SHOP_ITEMS } from "../../data/items";
 
 // ── SHOP ───────────────────────────────────────────────────────────────────
@@ -35,6 +35,6 @@ export function renderShop(state: GameState): string {
         lines.push('');
     }
 
-    lines.push(`  ${COLORS.dim("buy <item>  ·  sell <item> [qty]  ·  sell <item> --all")}`);
+    lines.push(`  ${COLORS.dim(escHtml("buy <item>  ·  sell <item> [qty]  ·  sell <item> --all"))}`);
     return lines.join('\n');
 }
